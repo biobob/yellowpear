@@ -1,0 +1,1 @@
+var r = Raphael('canvas', 500, 500);
