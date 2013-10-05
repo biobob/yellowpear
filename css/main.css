@@ -1,0 +1,44 @@
+/* CSS Normalization */
+* {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    line-height: 20px;
+}
+body, menu {
+    margin: 0;
+    padding: 0;
+}
+
+/* Application color scheme & dimensions */
+menu, menu a {
+	color: #fff;
+	cursor: default;
+	text-decoration: none;
+	padding: 6px 8px;
+}
+menu {
+	background-color: #111;
+}
+menu:hover, menu a:hover, #menubar > menu:hover {
+	background-color: #555;
+}
+menu.disabled, menu a.disabled {
+	color: #444;
+}
+menu.disabled:hover, menu a.disabled:hover {
+	background-color: transparent !important;
+}
+#canvas {
+	overflow: auto;
+}
+
+/* Menu bar specific */
+#menubar {
+	background-color: #222;
+	height: 32px;
+}
+#menubar > menu {
+	float: left;
+    background-color: transparent;
+}
+
