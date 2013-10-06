@@ -54,6 +54,7 @@
 				.addClass('menucard')
 				.css({top: $menuCategory.outerHeight() + 'px', left: $menuCategory.position().left + 'px'})
 				.appendTo($('body'))
+				.hover(hover, hover)
 				.hide();
 		}).end();
 	};
