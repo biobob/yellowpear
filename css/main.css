@@ -1,32 +1,45 @@
+/* FontAwesome */
+@font-face {
+	font-family: 'FontAwesome';
+	src: url('../res/fontawesome-webfont.eot?v=3.2.1');
+	src: url('../res/fontawesome-webfont.eot?#iefix&v=3.2.1') format('embedded-opentype'),
+	     url('../res/fontawesome-webfont.woff?v=3.2.1') format('woff'),
+	     url('../res/fontawesome-webfont.ttf?v=3.2.1') format('truetype'),
+	     url('../res/fontawesome-webfont.svg#1?v=3.2.1') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
 /* CSS Normalization */
 * {
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 14px;
-    line-height: 20px;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 14px;
+	line-height: 20px;
 }
 body, menu {
-    margin: 0;
-    padding: 0;
+	margin: 0;
+	padding: 0;
 }
 
 /* Application color scheme & dimensions */
-menu, menu a {
+menu, .menucard a {
 	color: #fff;
 	cursor: default;
 	text-decoration: none;
 	padding: 6px 8px;
 }
-menu {
-	background-color: #111;
-}
-menu:hover, menu a:hover, #menubar > menu:hover {
+menu:hover, .menucard a:hover, menu.unfold {
 	background-color: #555;
 }
-menu.disabled, menu a.disabled {
+.menucard a.disabled {
 	color: #444;
 }
-menu.disabled:hover, menu a.disabled:hover {
+.menucard a.disabled:hover {
 	background-color: transparent !important;
+}
+.menucard {
+	border: 1px solid #000;
+	position: absolute;
+	background-color: #111;
 }
 #canvas {
 	overflow: auto;
@@ -35,10 +48,24 @@ menu.disabled:hover, menu a.disabled:hover {
 /* Menu bar specific */
 #menubar {
 	background-color: #222;
-	height: 32px;
 }
 #menubar > menu {
 	float: left;
-    background-color: transparent;
 }
-
+#menubar > br {
+	clear: both;
+}
+.menucard a {
+	display: table-row;
+}
+.menucard > a > span {
+	display: table-cell;
+	padding: 6px 8px;
+}
+.menucard > a > span:first-child {
+	font-family: 'FontAwesome';
+	padding-right: 0;
+}
+.menucard > a > span > pre {
+	text-align: right;
+}
