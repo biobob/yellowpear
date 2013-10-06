@@ -1,6 +1,6 @@
 $(function() {
 	var r = Raphael('canvas', 1500, 1500), // Raphael instance
-		s = $('#menubar').outerHeight(true), // Vertical space not available for canvas
+		s = 0, // Vertical space not available for canvas
 		b = { // resource bundle
 			en: {
 				help: 'Help',
@@ -36,6 +36,7 @@ $(function() {
 		$t.text($.i18n($t.closest('a').attr('href').substring(1)));
 	});
 	
+	s = $('#menubar').outerHeight(true);
 	// Hook canvas height to window dimensions
 	$(window).resize(function() {
 		$('#canvas').height($(this).height() - s);
