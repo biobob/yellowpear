@@ -27,19 +27,16 @@ menu, .menucard a {
 	text-decoration: none;
 	padding: 6px 8px;
 }
-menu:hover, .menucard a:hover, menu.unfold {
-	background-color: #555;
-}
 .menucard a.disabled {
 	color: #444;
-}
-.menucard a.disabled:hover {
-	background-color: transparent !important;
 }
 .menucard {
 	border: 1px solid #000;
 	position: absolute;
 	background-color: #111;
+}
+.focus, .unfold {
+	background-color: #555;
 }
 #canvas {
 	overflow: auto;

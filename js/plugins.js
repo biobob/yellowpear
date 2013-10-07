@@ -1,62 +1,201 @@
 (function($){
 	
-	function hover() {
-		$(this).toggleClass('hover');
-	}
-	
 	$.fn.menubar = function(actions) {
-		return this.append('<br/>').children('menu').each(function(i) {
+		var $menubar = this;
+		// append line break to clear fix floating elements
+		$menubar.append('<br/>').children('menu').each(function(i) {
 			var $menuCategory = $(this);
+			function menuCategoryMouse() {
+				// do nothing if menu category is already expanded
+				if ($menuCategory.hasClass('unfold')) {
+					return;
+				}
+				// focus self
+				changeFocusTo($menuCategory);
+				// if there was opened card then open it also for this menu category
+				if (isSomeCardDisplayed()) {
+					hideCards();
+					$menuCategory.click();
+				}
+			}
 			$menuCategory.click(function() {
-				var $card = $('#submenu-' + $(this).index());
+				// get corresponding card
+				var $card = $('#submenu-' + $menuCategory.index());
+				// if menu category was expanded then close it
 				if ($card.is(':visible')) {
-					$menuCategory.removeClass('unfold');
-					$card.hide();
-					$('body').unbind('mousedown.menubar');
+					hideCards();
 				} else {
+					// mark menu category
 					$menuCategory.addClass('unfold');
+					// focus self - important for 
+					changeFocusTo($menuCategory);
 					$card.css({
-						// menu links are displayed as table
+						// cards are layoted as table
 						display: 'table',
-						// reposition card for case when menu category change position due to caption change
+						// reposition card for case when menu category position is changed (e.g. due to caption change)
 						top: $menuCategory.outerHeight() + 'px',
 						left: $menuCategory.position().left + 'px'
 					});
+					// bind click elsewhere to close the card trigger
 					$('body').bind('mousedown.menubar', function() {
-						if ($('div[id^=submenu-].hover:visible').length || $('#menubar > menu.hover.unfold:visible').length) {
-							return false;
+						// do nothing when clicking on card or menu category
+						if ($('div[id^=submenu-].hover:visible').length || $menuCategory.is('.hover.unfold:visible')) {
+							return;
 						}
-						$('menu').removeClass('unfold');
-						$('div[id^=submenu-]').hide();
-						$(this).unbind('mousedown.menubar');
+						hideCards();
 					});
 				}
+				// important for hiding card when clicking to expanded menu category
 				return false;
+			// to track mouse hover via CSS class - note hover doesn't always mean also focus
 			}).hover(hover, hover)
-			.mouseenter(function() {
-				var $cards = $('div[id^=submenu-]');
-				if ($(':visible', $cards).length) {
-					$('body').unbind('mousedown.menubar');
-					$('menu').removeClass('unfold');
-					$cards.hide();
-					$(this).click();
+			// steal focus back
+			.mousemove(menuCategoryMouse).hover(menuCategoryMouse, function() {
+				if (!$menuCategory.hasClass('unfold')) {
+					clearFocus();
 				}
 			}).children().filter('a').each(function() {
 				var $item = $(this),
 					action = actions[$item.attr('href').substring(1)];
+				function itemMouse() {
+					if (!$item.hasClass('disabled')) {
+						changeFocusTo($item);
+					}
+				}
+				// enhance link with attributes from action
 				$item.addClass(action.disabled ? 'disabled' : '').html(
 					'<span class="i">' + (action.icon ? String.fromCharCode(action.icon) : '') + '</span>' +
 					'<span class="c">' + $item.text() + '</span>' +
 					'<span><pre>' + (action.shortcut || '') + '</pre></span>'
-				);
+				// steal focus back
+				).mouseenter(itemMouse).mousemove(itemMouse);
+			// wrap all menu items to special div and move it to the body tag
 			}).wrapAll('<div/>').parent()
 				.attr('id', 'submenu-' + i)
 				.addClass('menucard')
-				.css({top: $menuCategory.outerHeight() + 'px', left: $menuCategory.position().left + 'px'})
 				.appendTo($('body'))
 				.hover(hover, hover)
 				.hide();
-		}).end();
+		});
+		function hover() {
+			$(this).toggleClass('hover');
+		}
+		function hideCards() {
+			$('menu').removeClass('unfold');
+			$('div[id^=submenu-]').hide();
+			$('body').unbind('mousedown.menubar');
+			clearFocus();
+		}
+		function getDisplayedCard() {
+			return $('div[id^=submenu-]:visible');
+		}
+		function isSomeCardDisplayed() {
+			return getDisplayedCard().length;
+		}
+		function getFocusedItem() {
+			return $('.focus');
+		}
+		function clearFocus() {
+			getFocusedItem().removeClass('focus');
+		}
+		function changeFocusTo(item) {
+			if (item.length) {
+				clearFocus();
+				item.addClass('focus');
+			}
+		}
+		$(document).bind('keydown', 'esc', function() {
+			if (isSomeCardDisplayed()) {
+				hideCards();
+			} else if (getFocusedItem().length) {
+				clearFocus();
+			} else {
+				changeFocusTo($('menu:first', $menubar));
+			}
+		}).bind('keydown', 'down', function() {
+			var $item = getFocusedItem(),
+				$card = getDisplayedCard();
+			if (!$item.length) {
+				return true;
+			}
+			if (!$card.length) {
+				$card = $('#submenu-' + $item.click().index());
+			}
+			var $availableItems = $card.children('a:not(.disabled)');
+			if ($item.parent()[0] === $menubar[0] || $item[0] === $availableItems.eq($availableItems.length - 1)[0]) {
+				changeFocusTo($availableItems.eq(0));
+			} else {
+				changeFocusTo($availableItems.eq($availableItems.index($item) + 1));
+			}
+			return false;
+		}).bind('keydown', 'up', function() {
+			var $item = getFocusedItem(),
+				$card = getDisplayedCard();
+			if (!$item.length) {
+				return true;
+			}
+			if (!$card.length) {
+				$card = $('#submenu-' + $item.click().index());
+			}
+			var $availableItems = $card.children('a:not(.disabled)');
+			if ($item.parent()[0] === $menubar[0] || $item[0] === $availableItems.eq(0)[0]) {
+				changeFocusTo($availableItems.eq($availableItems.length - 1));
+			} else {
+				changeFocusTo($availableItems.eq($availableItems.index($item) - 1));
+			}
+			return false;
+		}).bind('keydown', 'right', function() {
+			var $item = getFocusedItem(),
+				$card = getDisplayedCard();
+			if (!$item.length) {
+				return true;
+			}
+			if ($card.length) {
+				var $menuitem = $menubar.children('menu').eq($card.attr('id').substring(8));
+				hideCards();
+				if ($menuitem.is('menu:last')) {
+					$menubar.children('menu:first').click();
+				} else {
+					$menuitem.next().click();
+				}
+			}
+			if ($item.parent()[0] === $menubar[0]) {
+				if ($item.is('menu:last')) {
+					changeFocusTo($menubar.children('menu:first'));
+				} else {
+					changeFocusTo($item.next('menu'));
+				}
+			} else {
+				changeFocusTo(getDisplayedCard().children('a:not(.disabled)').eq(0));
+			}
+			return false;
+		}).bind('keydown', 'left', function() {
+			var $item = getFocusedItem(),
+				$card = getDisplayedCard();
+			if (!$item.length) {
+				return true;
+			}
+			if ($card.length) {
+				var $menuitem = $menubar.children('menu').eq($card.attr('id').substring(8));
+				hideCards();
+				if ($menuitem.is('menu:first')) {
+					$menubar.children('menu:last').click();
+				} else {
+					$menuitem.prev().click();
+				}
+			}
+			if ($item.parent()[0] === $menubar[0]) {
+				if ($item.is('menu:first')) {
+					changeFocusTo($menubar.children('menu:last'));
+				} else {
+					changeFocusTo($item.prev('menu'));
+				}
+			} else {
+				changeFocusTo(getDisplayedCard().children('a:not(.disabled)').eq(0));
+			}
+			return false;
+		});
+		return $menubar;
 	};
 	
 	/**
@@ -394,5 +533,107 @@
 	}
 
 	$.extend( $.i18n.messageStore, new MessageStore() );
+	
+	/*
+	 * jQuery Hotkeys Plugin
+	 * Copyright 2010, John Resig
+	 * Dual licensed under the MIT or GPL Version 2 licenses.
+	 *
+	 * Based upon the plugin by Tzury Bar Yochay:
+	 * http://github.com/tzuryby/hotkeys
+	 *
+	 * Original idea by:
+	 * Binny V A, http://www.openjs.com/scripts/events/keyboard_shortcuts/
+	 */
+	jQuery.hotkeys = {
+		version: "0.8",
+
+		specialKeys: {
+			8: "backspace", 9: "tab", 10: "return", 13: "return", 16: "shift", 17: "ctrl", 18: "alt", 19: "pause",
+			20: "capslock", 27: "esc", 32: "space", 33: "pageup", 34: "pagedown", 35: "end", 36: "home",
+			37: "left", 38: "up", 39: "right", 40: "down", 45: "insert", 46: "del", 
+			96: "0", 97: "1", 98: "2", 99: "3", 100: "4", 101: "5", 102: "6", 103: "7",
+			104: "8", 105: "9", 106: "*", 107: "+", 109: "-", 110: ".", 111 : "/", 
+			112: "f1", 113: "f2", 114: "f3", 115: "f4", 116: "f5", 117: "f6", 118: "f7", 119: "f8", 
+			120: "f9", 121: "f10", 122: "f11", 123: "f12", 144: "numlock", 145: "scroll", 186: ";", 191: "/",
+			220: "\\", 222: "'", 224: "meta"
+		},
+	
+		shiftNums: {
+			"`": "~", "1": "!", "2": "@", "3": "#", "4": "$", "5": "%", "6": "^", "7": "&", 
+			"8": "*", "9": "(", "0": ")", "-": "_", "=": "+", ";": ": ", "'": "\"", ",": "<", 
+			".": ">",  "/": "?",  "\\": "|"
+		}
+	};
+
+	function keyHandler( handleObj ) {
+		if ( typeof handleObj.data === "string" ) {
+			handleObj.data = { keys: handleObj.data };
+		}
+
+		// Only care when a possible input has been specified
+		if ( !handleObj.data || !handleObj.data.keys || typeof handleObj.data.keys !== "string" ) {
+			return;
+		}
+
+		var origHandler = handleObj.handler,
+			keys = handleObj.data.keys.toLowerCase().split(" "),
+			textAcceptingInputTypes = ["text", "password", "number", "email", "url", "range", "date", "month", "week", "time", "datetime", "datetime-local", "search", "color", "tel"];
+	
+		handleObj.handler = function( event ) {
+			// Don't fire in text-accepting inputs that we didn't directly bind to
+			if ( this !== event.target && (/textarea|select/i.test( event.target.nodeName ) ||
+				jQuery.inArray(event.target.type, textAcceptingInputTypes) > -1 ) ) {
+				return;
+			}
+
+			var special = jQuery.hotkeys.specialKeys[ event.keyCode ],
+				// character codes are available only in keypress
+				character = event.type === "keypress" && String.fromCharCode( event.which ).toLowerCase(),
+				modif = "", possible = {};
+
+			// check combinations (alt|ctrl|shift+anything)
+			if ( event.altKey && special !== "alt" ) {
+				modif += "alt+";
+			}
+
+			if ( event.ctrlKey && special !== "ctrl" ) {
+				modif += "ctrl+";
+			}
+			
+			// TODO: Need to make sure this works consistently across platforms
+			if ( event.metaKey && !event.ctrlKey && special !== "meta" ) {
+				modif += "meta+";
+			}
+
+			if ( event.shiftKey && special !== "shift" ) {
+				modif += "shift+";
+			}
+
+			if ( special ) {
+				possible[ modif + special ] = true;
+			}
+
+			if ( character ) {
+				possible[ modif + character ] = true;
+				possible[ modif + jQuery.hotkeys.shiftNums[ character ] ] = true;
+
+				// "$" can be triggered as "Shift+4" or "Shift+$" or just "$"
+				if ( modif === "shift+" ) {
+					possible[ jQuery.hotkeys.shiftNums[ character ] ] = true;
+				}
+			}
+
+			for ( var i = 0, l = keys.length; i < l; i++ ) {
+				if ( possible[ keys[i] ] ) {
+					return origHandler.apply( this, arguments );
+				}
+			}
+		};
+	}
+
+	jQuery.each([ "keydown", "keyup", "keypress" ], function() {
+		jQuery.event.special[ this ] = { add: keyHandler };
+	});
 	
 })(jQuery);
