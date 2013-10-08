@@ -122,11 +122,11 @@
 				$card = $('#submenu-' + $item.click().index());
 			}
 			var $availableItems = $card.children('a:not(.disabled)');
-			if ($item.parent()[0] === $menubar[0] || $item[0] === $availableItems.eq($availableItems.length - 1)[0]) {
-				changeFocusTo($availableItems.eq(0));
-			} else {
-				changeFocusTo($availableItems.eq($availableItems.index($item) + 1));
-			}
+			changeFocusTo(
+				$item.parent()[0] === $menubar[0] || $item[0] === $availableItems.eq($availableItems.length - 1)[0] ?
+				$availableItems.eq(0) :
+				$availableItems.eq($availableItems.index($item) + 1)
+			);
 			return false;
 		}).bind('keydown', 'up', function() {
 			var $item = getFocusedItem(),
@@ -138,11 +138,11 @@
 				$card = $('#submenu-' + $item.click().index());
 			}
 			var $availableItems = $card.children('a:not(.disabled)');
-			if ($item.parent()[0] === $menubar[0] || $item[0] === $availableItems.eq(0)[0]) {
-				changeFocusTo($availableItems.eq($availableItems.length - 1));
-			} else {
-				changeFocusTo($availableItems.eq($availableItems.index($item) - 1));
-			}
+			changeFocusTo(
+				$item.parent()[0] === $menubar[0] || $item[0] === $availableItems.eq(0)[0] ?
+				$availableItems.eq($availableItems.length - 1):
+				$availableItems.eq($availableItems.index($item) - 1)
+			);
 			return false;
 		}).bind('keydown', 'right', function() {
 			var $item = getFocusedItem(),
