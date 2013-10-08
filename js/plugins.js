@@ -54,7 +54,17 @@
 				if (!$menuCategory.hasClass('unfold')) {
 					clearFocus();
 				}
-			}).children().filter('a').each(function() {
+			// wrap all menu items to special div and move it to the body tag	
+			}).children().wrapAll('<div/>').parent()
+				.attr('id', 'submenu-' + i)
+				.addClass('menucard')
+				.appendTo($('body'))
+				.hover(hover, hover)
+				.hide().children()
+			// split horizontal line into 3 cells table layout - since colspan isnt't supported in CSS
+			.filter('hr').replaceWith('<div class="separator"><span><hr></span><span><hr></span><span><hr></span></div>').end()
+			// display links in table layout with 3 cells (icon, caption, keyboard shortcut)
+			.filter('a').each(function() {
 				var $item = $(this),
 					action = actions[$item.attr('href').substring(1)];
 				function itemMouse() {
@@ -69,13 +79,7 @@
 					'<span><pre>' + (action.shortcut || '') + '</pre></span>'
 				// steal focus back
 				).mouseenter(itemMouse).mousemove(itemMouse);
-			// wrap all menu items to special div and move it to the body tag
-			}).wrapAll('<div/>').parent()
-				.attr('id', 'submenu-' + i)
-				.addClass('menucard')
-				.appendTo($('body'))
-				.hover(hover, hover)
-				.hide();
+			});
 		});
 		function hover() {
 			$(this).toggleClass('hover');

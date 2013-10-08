@@ -21,7 +21,7 @@ body, menu {
 }
 
 /* Application color scheme & dimensions */
-menu, .menucard a {
+menu, .menucard a, .menucard a > span {
 	color: #fff;
 	cursor: default;
 	text-decoration: none;
@@ -52,17 +52,28 @@ menu, .menucard a {
 #menubar > br {
 	clear: both;
 }
-.menucard a {
+.menucard a, .menucard .separator {
 	display: table-row;
 }
-.menucard > a > span {
+.menucard a > span, .menucard .separator > span {
 	display: table-cell;
-	padding: 6px 8px;
 }
-.menucard > a > span:first-child {
+.menucard a > span:first-child {
 	font-family: 'FontAwesome';
 	padding-right: 0;
 }
-.menucard > a > span > pre {
+.menucard a > span > pre {
 	text-align: right;
+}
+.menucard .separator > span > hr {
+	border: none;
+	height: 1px;
+	margin: 2px 0;
+	background-color: #444;
+}
+.menucard .separator > span:first-child {
+    padding-left: 5px;
+}
+.menucard .separator > span:last-child {
+    padding-right: 5px;
 }
