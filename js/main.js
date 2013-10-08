@@ -5,12 +5,14 @@ $(function() {
 			en: {
 				help: 'Help',
 				bug: 'Report bug',
-				git: 'GitHub repository'
+				git: 'GitHub repository',
+				about: 'About YellowPear'
 			},
 			sk: {
 				help: 'Pomoc',
 				bug: 'Nahlásiť chybu',
-				git: 'GitHub repozitár'
+				git: 'GitHub repozitár',
+				about: 'O aplikácii YellowPear'
 			}
 		},
 		a = { // application actions
@@ -19,10 +21,13 @@ $(function() {
 			},
 			git: {
 				icon: 61715
+			},
+			about: {
+				icon: 61529
 			}
 		};
 		
-	$('#menubar').menubar(a); // Initialize menu bar
+	$('#menubar').menubar(a).show(); // Initialize menu bar
 	
 	$.i18n().load(b);
 	//TODO implement detection of browser language preference
