@@ -17,10 +17,16 @@ $(function() {
 		},
 		a = { // application actions
 			bug: {
-				icon: 61832
+				icon: 61832,
+				exec: function() {
+					openUrlInNewTab('https://github.com/biobob/yellowpear/issues?state=open');
+				}
 			},
 			git: {
-				icon: 61715
+				icon: 61715,
+				exec: function() {
+					openUrlInNewTab('https://github.com/biobob/yellowpear');
+				}
 			},
 			about: {
 				icon: 61529
@@ -46,4 +52,9 @@ $(function() {
 	$(window).resize(function() {
 		$('#canvas').height($(this).height() - s);
 	}).resize();
+	
+	function openUrlInNewTab(url) {
+		var win = window.open(url, '_blank');
+		win.focus();
+	}
 });

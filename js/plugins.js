@@ -78,7 +78,13 @@
 					'<span class="c">' + $item.text() + '</span>' +
 					'<span><pre>' + (action.shortcut || '') + '</pre></span>'
 				// steal focus back
-				).mouseenter(itemMouse).mousemove(itemMouse);
+				).mouseenter(itemMouse).mousemove(itemMouse).click(function() {
+					if (!$item.hasClass('disabled') && $.isFunction(action.exec)) {
+						hideCards();
+						action.exec();
+					}
+					return false;
+				});
 			});
 		});
 		function hover() {
@@ -197,6 +203,13 @@
 			} else {
 				changeFocusTo(getDisplayedCard().children('a:not(.disabled)').eq(0));
 			}
+			return false;
+		}).bind('keydown', 'return', function() {
+			var $item = getFocusedItem();
+			if (!$item.length) {
+				return true;
+			}
+			$item.click();
 			return false;
 		});
 		return $menubar;
