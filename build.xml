@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!DOCTYPE project>
+<project name="YellowPear" default="deploy" basedir=".">
+	
+	<property file="build.properties" />
+	
+	<target name="deploy">
+		<ftp server="${ftp.server}" userid="${ftp.userid}" password="${ftp.passwd}" remotedir="${ftp.remote}">
+			<fileset dir="${basedir}">
+				<include name="*.php" />
+			</fileset>
+		</ftp>
+	</target>
+	
+</project>
