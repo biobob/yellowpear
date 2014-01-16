@@ -21,7 +21,7 @@
 	</div>
 	
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-	<script src="http://cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/raphael/2.1.2/raphael-min.js"></script>
 	<script>
 		window.jQuery || document.write('<script src="js/vendor/jquery-1.10.2.min.js"><\/script>');
 		window.Raphael || document.write('<script src="js/vendor/jquery-raphael-2.1.2.min.js"><\/script>');
