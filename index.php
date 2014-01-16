@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="<?php echo  substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2); ?>">
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -24,7 +24,7 @@
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
 	<script>
 		window.jQuery || document.write('<script src="js/vendor/jquery-1.10.2.min.js"><\/script>');
-		window.Raphael || document.write('<script src="js/vendor/jquery-raphael-2.1.0.min.js"><\/script>');
+		window.Raphael || document.write('<script src="js/vendor/jquery-raphael-2.1.2.min.js"><\/script>');
 	</script>
 	<script src="js/plugins.js"></script>
 	<script src="js/main.js"></script>

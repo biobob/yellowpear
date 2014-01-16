@@ -1,6 +1,6 @@
 $(function() {
 	var r = Raphael('canvas', 1500, 1500), // Raphael instance
-		s = 0, // Vertical space not available for canvas
+		s = 0, // Vertical space not available for canvas (used in window resize method)
 		b = { // resource bundle
 			en: {
 				help: 'Help',
@@ -36,8 +36,8 @@ $(function() {
 	$('#menubar').menubar(a).show(); // Initialize menu bar
 	
 	$.i18n().load(b);
-	//TODO implement detection of browser language preference
-	$.i18n({locale: 'sk'});
+	// Use language declared in HTML root tag
+	$.i18n({locale: $('html').attr('lang')});
 	$('menu').each(function() {
 		var $t = $(this);
 		$t.text($.i18n($t.attr('label')));
