@@ -29,6 +29,9 @@
 				var resp = scan.useDelimiter("\\A").next();
 				scan.close();
 				con.disconnect();
+				self.log("POST @{url}");
+				self.log("HTTP Status Code: " + con.getResponseCode());
+				project.setProperty("post.size", resp.getBytes("UTF-8").length);
 				var wrtr = new PrintWriter("@{output}");
 				wrtr.println(resp);
 				wrtr.close();
@@ -53,6 +56,8 @@
 				post.setDynamicAttribute("params", "input=" + URLEncoder.encode(cont, "UTF-8"));
 				post.setDynamicAttribute("output", "@{output}");
 				post.perform();
+				self.log("Original CSS size: " + cont.getBytes("UTF-8").length + " B");
+				self.log("Minified CSS size: " + project.getProperty("post.size") + " B")
 			]]></script>
 		</sequential>
 	</macrodef>
