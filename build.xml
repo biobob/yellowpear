@@ -13,28 +13,35 @@
 			<script language="javascript"><![CDATA[
 				importPackage(java.net);
 				importPackage(java.io);
+				importClass(java.lang.StringBuilder);
 				importClass(java.util.Scanner);
+				var params = new StringBuilder("@{params}");
 				var url = new URL("@{url}");
 				var con = url.openConnection();
 				con.setDoOutput(true);
 				con.setDoInput(true);
-				con.setInstanceFollowRedirects(false); 
 				con.setUseCaches(false);
+				con.setInstanceFollowRedirects(true); 
 				con.setRequestMethod("POST");
+				con.setRequestProperty("Content-type", "application/x-www-form-urlencoded");
+				con.setRequestProperty("charset", "utf-8");
+				con.setRequestProperty("Content-length", params.length());
 				var out = new DataOutputStream(con.getOutputStream());
-				out.writeBytes("@{params}");
+				out.writeBytes(params);
 				out.flush();
 				out.close();
-				var scan = new Scanner(con.getInputStream(), "UTF-8");
-				var resp = scan.useDelimiter("\\A").next();
-				scan.close();
 				con.disconnect();
 				self.log("POST @{url}");
 				self.log("HTTP Status Code: " + con.getResponseCode());
-				project.setProperty("post.size", resp.getBytes("UTF-8").length);
-				var wrtr = new PrintWriter("@{output}");
-				wrtr.println(resp);
-				wrtr.close();
+				if (200 === con.getResponseCode()) {
+					var scan = new Scanner(con.getInputStream(), "UTF-8");
+					var resp = scan.useDelimiter("\\A").next();
+					scan.close();
+					project.setProperty("post.size", resp.getBytes("UTF-8").length);
+					var wrtr = new PrintWriter("@{output}");
+					wrtr.println(resp);
+					wrtr.close();
+				}
 			]]></script>
 		</sequential>
 	</macrodef>
@@ -62,17 +69,47 @@
 		</sequential>
 	</macrodef>
 	
+	<macrodef name="minifyjs">
+		<attribute name="file" />
+		<attribute name="output" />
+		<sequential>
+			<script language="javascript"><![CDATA[
+				importClass(java.io.File);
+				importClass(java.util.Scanner);
+				importClass(java.net.URLEncoder);
+				var file = new File("@{file}");
+				var scan = new Scanner(file, "UTF-8");
+				var cont = scan.useDelimiter("\\A").next();
+				scan.close();
+				var post = YellowPear.createTask("post");
+				var params = "js_code=" + URLEncoder.encode(cont, "UTF-8");
+				params += "&compilation_level=SIMPLE_OPTIMIZATIONS";
+				params += "&output_format=text";
+				params += "&output_info=compiled_code";
+				post.setDynamicAttribute("url", "http://closure-compiler.appspot.com/compile");
+				post.setDynamicAttribute("params", params);
+				post.setDynamicAttribute("output", "@{output}");
+				post.perform();
+				self.log("Original JS size: " + cont.getBytes("UTF-8").length + " B");
+				self.log("Minified JS size: " + project.getProperty("post.size") + " B")
+			]]></script>
+		</sequential>
+	</macrodef>
+	
 	<target name="init">
 		<delete dir="${dist}" />
 		<mkdir dir="${dist}" />
 		<mkdir dir="${dist}/css" />
+		<mkdir dir="${dist}/js" />
 		<copy file="index.php" todir="${dist}" />
 	</target>
 	
 	<target name="customize" depends="init">
 		<replace file="${dist}/index.php" token="css/main.css" value="css/main.min.css" />
+		<replace file="${dist}/index.php" token="js/main.js" value="js/main.min.js" />
 		<replace file="${dist}/index.php" token="UA-XXXXX-X" value="${tracking.id}" />
-		<minifycss file="css/main.css" output="${dist}/css/main.min.css"/>
+		<minifycss file="css/main.css" output="${dist}/css/main.min.css" />
+		<minifyjs file="js/main.js" output="${dist}/js/main.min.js" />
 	</target>
 	
 	<target name="deploy" depends="customize">
