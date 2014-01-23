@@ -72,8 +72,8 @@ menu, .menucard a, .menucard a > span {
 	background-color: #444;
 }
 .menucard .separator > span:first-child {
-    padding-left: 5px;
+	padding-left: 5px;
 }
 .menucard .separator > span:last-child {
-    padding-right: 5px;
+	padding-right: 5px;
 }
