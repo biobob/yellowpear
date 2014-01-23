@@ -3,22 +3,77 @@
 <project name="YellowPear" default="deploy" basedir=".">
 	
 	<property file="build.properties" />
-	<property name="dist" value="${basedir}/dist" />
+	<property name="dist" value="dist" />
+	
+	<macrodef name="post">
+		<attribute name="url" />
+		<attribute name="params" />
+		<attribute name="output" />
+		<sequential>
+			<script language="javascript"><![CDATA[
+				importPackage(java.net);
+				importPackage(java.io);
+				importClass(java.util.Scanner);
+				var url = new URL("@{url}");
+				var con = url.openConnection();
+				con.setDoOutput(true);
+				con.setDoInput(true);
+				con.setInstanceFollowRedirects(false); 
+				con.setUseCaches(false);
+				con.setRequestMethod("POST");
+				var out = new DataOutputStream(con.getOutputStream());
+				out.writeBytes("@{params}");
+				out.flush();
+				out.close();
+				var scan = new Scanner(con.getInputStream(), "UTF-8");
+				var resp = scan.useDelimiter("\\A").next();
+				scan.close();
+				con.disconnect();
+				var wrtr = new PrintWriter("@{output}");
+				wrtr.println(resp);
+				wrtr.close();
+			]]></script>
+		</sequential>
+	</macrodef>
+	
+	<macrodef name="minifycss">
+		<attribute name="file" />
+		<attribute name="output" />
+		<sequential>
+			<script language="javascript"><![CDATA[
+				importClass(java.io.File);
+				importClass(java.util.Scanner);
+				importClass(java.net.URLEncoder);
+				var file = new File("@{file}");
+				var scan = new Scanner(file, "UTF-8");
+				var cont = scan.useDelimiter("\\A").next();
+				scan.close();
+				var post = YellowPear.createTask("post");
+				post.setDynamicAttribute("url", "http://cssminifier.com/raw");
+				post.setDynamicAttribute("params", "input=" + URLEncoder.encode(cont, "UTF-8"));
+				post.setDynamicAttribute("output", "@{output}");
+				post.perform();
+			]]></script>
+		</sequential>
+	</macrodef>
 	
 	<target name="init">
 		<delete dir="${dist}" />
 		<mkdir dir="${dist}" />
+		<mkdir dir="${dist}/css" />
 		<copy file="index.php" todir="${dist}" />
 	</target>
 	
 	<target name="customize" depends="init">
+		<replace file="${dist}/index.php" token="css/main.css" value="css/main.min.css" />
 		<replace file="${dist}/index.php" token="UA-XXXXX-X" value="${tracking.id}" />
+		<minifycss file="css/main.css" output="${dist}/css/main.min.css"/>
 	</target>
 	
 	<target name="deploy" depends="customize">
 		<ftp server="${ftp.server}" userid="${ftp.userid}" password="${ftp.passwd}" remotedir="${ftp.remote}">
 			<fileset dir="${dist}">
-				<include name="index.php" />
+				<include name="**/*" />
 			</fileset>
 		</ftp>
 	</target>
