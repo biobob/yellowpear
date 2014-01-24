@@ -102,6 +102,7 @@
 		<mkdir dir="${dist}/css" />
 		<mkdir dir="${dist}/js" />
 		<copy file="index.php" todir="${dist}" />
+		<copy file="res/favicon.ico" todir="${dist}" />
 	</target>
 	
 	<target name="customize" depends="init">
